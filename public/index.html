@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocBill Media</title>
+    <style>
+        body {
+            background-color: #ea89da; 
+            color: #e600b8;
+            font-family: 'Aharoni'; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #loginContainer, #container {
+            text-align: center;
+        }
+        h1 {
+            color: #b3fcfa;
+        }
+        input[type="text"], select {
+            background-color: #79cef2; 
+            width: 300px;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            color: #2f0094;
+            border: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #6bc09f;
+            color: #005b2f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003418;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0; 
+        }
+        li {
+            padding: 4px;
+            border-left: 2px solid #930062;
+            text-align: left;
+        }
+        #imageOnEdgeLeft, #imageOnEdgeRight {
+            position: fixed;
+            top: 0%;
+            transform: translateY(-0%);
+            width: auto;
+            height: 100%;
+            z-index: 1;
+        }
+        #imageOnEdgeLeft {
+            left: 0;
+        }
+        #imageOnEdgeRight {
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <img id="imageOnEdgeLeft" 
+        src="imagething.jpg" 
+        alt="">
+    <img id="imageOnEdgeRight" 
+        src="imagething.jpg" 
+        alt="">
+    <div id="loginContainer">
+        <h1>Welcome to SocBill Media</h1>
+        <form id="loginForm">
+            <input type="text" id="usernameInput" placeholder="Enter your username...">
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <div id="container" style="display: none;">
+        <h1 id="roomTitle"></h1>
+        <select id="roomSelect">
+            <option value="room1">Room 1</option>
+            <option value="room2">Room 2</option>
+            <option value="room3">Room 3</option>
+            <option value="room4">Room 4</option>
+        </select>
+        <form id="messageForm">
+            <input type="text" id="messageInput" placeholder="Send a text in...">
+            <button type="submit">Send</button>
+        </form>
+        <ul id="messagesList"></ul>
+    </div>
+
+    <script>
+        let username; // Global variable for username
+
+        document.getElementById('loginForm').onsubmit = function(event) {
+            event.preventDefault();
+            username = document.getElementById('usernameInput').value;
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('container').style.display = 'block';
+            document.getElementById('roomTitle').innerText = 'Hello, ' + username + '! Choose a room:';
+            loadMessages();
+        };
+
+        document.getElementById('messageForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+            const room = document.getElementById('roomSelect').value;
+            messageInput.value = '';
+            await fetch('/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message, room, username })
+            });
+            loadMessages();
+        };
+
+        async function loadMessages() {
+            const room = document.getElementById('roomSelect').value;
+            const response = await fetch('/messages?room=' + encodeURIComponent(room));
+            const messages = await response.json();
+            const messagesList = document.getElementById('messagesList');
+            messagesList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg.username + ": " + msg.message;
+                messagesList.appendChild(li);
+            });
+        }
+
+        document.getElementById('roomSelect').onchange = loadMessages;
+    </script>
+</body>
+</html>
