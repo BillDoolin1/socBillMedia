@@ -54,6 +54,7 @@
         #imageOnEdgeLeft, #imageOnEdgeRight {
             position: fixed;
             top: 0%;
+            /*  flex: 1 think this is redunadant */
             transform: translateY(-0%);
             width: auto;
             height: 100%;
@@ -102,16 +103,17 @@
     
 
     <script>
-        let username; // Global variable for username
-
+        let username; // need constantgloabl username
+        // get username and admin/non admin process
         document.getElementById('loginForm').onsubmit = function(event) {
             event.preventDefault();
+            // running this irregardless of if its admin or not otherwise it breaks :/
             username = document.getElementById('usernameInput').value;
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('container').style.display = 'block';
             document.getElementById('roomTitle').innerText = 'Hello, ' + username + '! Choose a room:';
             if (username.toLowerCase() === 'admin') {
-            // Show admin welcome screen and hide other elements
+            // get rid of rest of screen
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('container').style.display = 'none';
                 document.getElementById('imageOnEdgeLeft').style.display = 'none';
@@ -119,12 +121,11 @@
                 document.getElementById('adminWelcome').style.display = 'flex';
             }
             else{
+                // only works apart from other code for some reaosn
                 loadMessages();
             }
         };
-        
-           
-
+        //for after username
         document.getElementById('messageForm').onsubmit = async function(event) {
             event.preventDefault();
             const messageInput = document.getElementById('messageInput');
@@ -140,21 +141,20 @@
             });
             loadMessages();
         };
-
+        // always load messages - and how to do it
         async function loadMessages() {
             const room = document.getElementById('roomSelect').value;
             const response = await fetch('/messages?room=' + encodeURIComponent(room));
             const messages = await response.json();
             const messagesList = document.getElementById('messagesList');
             messagesList.innerHTML = '';
-            messages.forEach(msg => {
-                const li = document.createElement('li');
+            messages.forEach(msg => {   // got this specific bit rec online after bug
+                const li = document.createElement('li'); 
                 li.textContent = msg.username + ": " + msg.message;
                 messagesList.appendChild(li);
             });
         }
-
-        document.getElementById('roomSelect').onchange = loadMessages;
+        document.getElementById('roomSelect').onchange = loadMessages; // prevent load message bug after admin brought in
     </script>
 </body>
 </html>
