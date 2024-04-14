@@ -24,9 +24,16 @@ let rooms = {
 // generate key pair and return
 function generateKeyPair() {
     const keypair = forge.pki.rsa.generateKeyPair(2048);
+    const cert = forge.pki.createCertificate();
+    cert.publicKey = keypair.publicKey;
+    const attrs = [{ name: 'commonName', value: 'exampleUser' }];
+    cert.setSubject(attrs);
+    cert.setIssuer(attrs);
+    cert.sign(keypair.privateKey);
     return {
         privateKey: forge.pki.privateKeyToPem(keypair.privateKey),
-        publicKey: forge.pki.publicKeyToPem(keypair.publicKey)
+        publicKey: forge.pki.publicKeyToPem(keypair.publicKey),
+        certificate: forge.pki.certificateToPem(cert)
     };
 }
 
