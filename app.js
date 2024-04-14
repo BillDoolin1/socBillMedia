@@ -25,21 +25,22 @@ function encrypt(text) {
 
 app.get('/messages', (req, res) => {
     const room = req.query.room;
-    // For private rooms, send back encrypted messages as they are
-    // For public rooms, send back plaintext messages
+    // Send back messages in their current form (encrypted for private, plain for public)
     res.json(messages[room] || []);
 });
 
 app.post('/messages', (req, res) => {
     const { message, room, username } = req.body;
     
-    // Encrypt message if it's a private room
-    if (room.includes('Private')) {
-        const encryptedMessage = encrypt(message);
-        messages[room].push({ username, message: encryptedMessage });
-    } else {
-        messages[room].push({ username, message }); // Public messages are not encrypted
+    // Check if the room is private and encrypt the message if it is
+    const isPrivate = room.includes('Private');
+    const messageToStore = isPrivate ? encrypt(message) : message;
+    
+    if (!messages[room]) {
+        messages[room] = [];
     }
+
+    messages[room].push({ username, message: messageToStore });
     
     res.status(201).send('Message added');
 });
