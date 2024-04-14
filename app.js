@@ -3,7 +3,12 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json()); 
 
-let messages = {}; // Object to store messages by room
+let messages = {
+    'Public GroupChat 1': [],
+    'Public GroupChat 2': [],
+    'Private Groupchat 3': [],
+    'Private Groupchat 4': []
+};
 
 app.get('/messages', (req, res) => {
     const room = req.query.room;
@@ -15,7 +20,7 @@ app.post('/messages', (req, res) => {
     if (!messages[room]) {
         messages[room] = [];
     }
-    messages[room].push({ username: username, message: message });
+    messages[room].push({ username, message });
     res.status(201).send('Message added');
 });
 
